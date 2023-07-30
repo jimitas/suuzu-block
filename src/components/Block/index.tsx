@@ -27,9 +27,7 @@ export const Block = (props: BlockProps) => {
     const currentTimestamp = Date.now();
     if (currentTimestamp - lastClickTimestamp <= 500) {
       handleBlockDoubleClick(blockIndex);
-    } else {
-      se.pi.play();
-    }
+    } 
     setLastClickTimestamp(currentTimestamp);
   };
 
