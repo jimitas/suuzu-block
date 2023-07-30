@@ -11,8 +11,9 @@
   justify-content: center;
   align-items: center;
   margin: 5px;
-  box-shadow: -4px 4px 5px rgba(0, 0, 0, 0.5);
+  box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.5);
   cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
 .suuzuBlockInner {
