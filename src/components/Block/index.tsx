@@ -1,4 +1,5 @@
 import React from "react";
+import Draggable from "react-draggable";
 
 import * as se from "src/components/se";
 import styles from "@/styles/Home.module.css";
@@ -49,22 +50,22 @@ export const Block = (props: BlockProps) => {
       return newColors;
     });
 
-    setRotationAngles((prevAngles) => {
-      const newAngles = [...prevAngles];
-      newAngles[blockIndex] += 180;
-      return newAngles;
-    });
+    // setRotationAngles((prevAngles) => {
+    //   const newAngles = [...prevAngles];
+    //   newAngles[blockIndex] += 180;
+    //   return newAngles;
+    // });
 
-    if (!blockRefs.current[blockIndex]) return;
-    blockRefs.current[blockIndex]!.style.boxShadow = "0px 4px 4px rgba(0, 0, 0, 0.2)";
+    // if (!blockRefs.current[blockIndex]) return;
+    // blockRefs.current[blockIndex]!.style.boxShadow = "0px 4px 4px rgba(0, 0, 0, 0.2)";
   };
 
-  const handleTransitionEnd = (blockIndex: number) => {
-    if (!blockRefs.current[blockIndex]) return;
-    blockRefs.current[blockIndex]!.style.boxShadow = isFlipped[blockIndex]
-      ? "-4px 4px 3px rgba(0, 0, 0, 0.5)"
-      : "4px 4px 3px rgba(0, 0, 0, 0.5)";
-  };
+  // const handleTransitionEnd = (blockIndex: number) => {
+  //   if (!blockRefs.current[blockIndex]) return;
+  //   blockRefs.current[blockIndex]!.style.boxShadow = isFlipped[blockIndex]
+  //     ? "-4px 4px 3px rgba(0, 0, 0, 0.5)"
+  //     : "4px 4px 3px rgba(0, 0, 0, 0.5)";
+  // };
 
   return (
     <>
@@ -80,21 +81,23 @@ export const Block = (props: BlockProps) => {
                     const blockIndex =
                       caseIndex * (ROWS_COUNT * COLUMNS_COUNT) + rowIndex * COLUMNS_COUNT + columnIndex;
                     return (
-                      <div
-                        key={blockIndex}
-                        ref={(el) => (blockRefs.current[blockIndex] = el)}
-                        className={styles.suuzuBlockOuter}
-                        onClick={() => handleClick(blockIndex)}
-                        onTransitionEnd={() => handleTransitionEnd(blockIndex)}
-                        style={{
-                          transform: `rotateY(${rotationAngles[blockIndex]}deg)`,
-                        }}
-                      >
+                      // eslint-disable-next-line react/jsx-key
+                      <Draggable key={blockIndex}>
                         <div
-                          className={styles.suuzuBlockInner}
-                          style={{ backgroundColor: blockColors[blockIndex] }}
-                        ></div>
-                      </div>
+                          ref={(el) => (blockRefs.current[blockIndex] = el)}
+                          className={styles.suuzuBlockOuter}
+                          onClick={() => handleClick(blockIndex)}
+                          // onTransitionEnd={() => handleTransitionEnd(blockIndex)}
+                          style={{
+                            transform: `rotateY(${rotationAngles[blockIndex]}deg)`,
+                          }}
+                        >
+                          <div
+                            className={styles.suuzuBlockInner}
+                            style={{ backgroundColor: blockColors[blockIndex] }}
+                          ></div>
+                        </div>
+                      </Draggable>
                     );
                   })}
                 </div>
