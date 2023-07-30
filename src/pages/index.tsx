@@ -9,18 +9,26 @@ export default function Home() {
   const [isFlipped, setIsFlipped] = useState(false);
   const [blockColor, setBlockColor] = useState("pink");
 
-  const handleBlockClick = () => {
+  const handleBlockDoubleClick = () => {
     setIsFlipped(!isFlipped);
     setBlockColor((prevColor) => (prevColor === "pink" ? "blue" : "pink"));
     // 現在の角度に180度を加える
     setRotationAngle((prevAngle) => prevAngle + 180);
+    if (!blockOuterRef.current) return;
+    blockOuterRef.current.style.boxShadow = "0px 4px 4px rgba(0, 0, 0, 0.2)";
+  };
+
+  const handleTransitionEnd = () => {
+    if (!blockOuterRef.current) return;
+    blockOuterRef.current.style.boxShadow = isFlipped
+      ? "-4px 4px 3px rgba(0, 0, 0, 0.5)"
+      : "4px 4px 3px rgba(0, 0, 0, 0.5)";
   };
 
   // 回転スタイルの作成
   const rotationStyle = {
     transform: `rotateY(${rotationAngle}deg)`,
-    transition: "transform 0.5s ease",
-    boxShadow: isFlipped ? "-4px 4px 5px rgba(0, 0, 0, 0.5)" : "4px 4px 5px rgba(0, 0, 0, 0.5)", // isFlipped の値によって影を適用または削除
+    transition: "transform 0.2s ease",
     transformOrigin: "center",
   };
 
@@ -38,7 +46,8 @@ export default function Home() {
         <div
           ref={blockOuterRef}
           className={styles.suuzuBlockOuter}
-          onClick={handleBlockClick}
+          onDoubleClick={handleBlockDoubleClick}
+          onTransitionEnd={handleTransitionEnd}
           style={{ ...rotationStyle }}
         >
           <div ref={blockInnerRef} className={styles.suuzuBlockInner} style={{ backgroundColor: blockColor }}></div>
