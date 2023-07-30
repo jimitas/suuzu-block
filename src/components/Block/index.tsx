@@ -1,23 +1,26 @@
-import React from 'react'
+import React from "react";
 
 import * as se from "src/components/se";
 import styles from "@/styles/Home.module.css";
 import { useRef, useState } from "react";
 
+interface BlockProps {
+  casesCount: number;
+  rowsCount: number;
+  columunsCount: number;
+}
 
+export const Block = (props: BlockProps) => {
+  const CASES_COUNT = props.casesCount;
+  const ROWS_COUNT = props.rowsCount;
+  const COLUMNS_COUNT = props.columunsCount;
+  const BLOCKS_COUNT = CASES_COUNT * ROWS_COUNT * COLUMNS_COUNT;
 
-const CASES_COUNT = 2;
-const ROWS_COUNT = 2;
-const COLUMNS_COUNT = 5;
-const BLOCKS_COUNT = CASES_COUNT * ROWS_COUNT * COLUMNS_COUNT;
-
-export const Block = () => {
   const blockRefs = useRef<Array<HTMLDivElement | null>>([]);
   const [rotationAngles, setRotationAngles] = useState<number[]>(new Array(BLOCKS_COUNT).fill(0));
   const [isFlipped, setIsFlipped] = useState(new Array(BLOCKS_COUNT).fill(false));
   const [blockColors, setBlockColors] = useState<string[]>(new Array(BLOCKS_COUNT).fill("pink"));
   const [lastClickTimestamp, setLastClickTimestamp] = useState<number>(0);
-
 
   //ダブルクリックの判定
   const handleClick = (blockIndex: number) => {
@@ -29,7 +32,6 @@ export const Block = () => {
     }
     setLastClickTimestamp(currentTimestamp);
   };
-  
 
   //ブロックを裏返す
   const handleBlockDoubleClick = (blockIndex: number) => {
@@ -69,9 +71,9 @@ export const Block = () => {
       <main className="flex flex-col items-center justify-center min-h-screen py-2 bg-gray-200">
         <h1 className="text-4xl font-bold text-gray-700">すうず　ぶろっく</h1>
 
-        <div className="flex">
+        <div className="flex bg-red-200 rounded-xl">
           {Array.from({ length: CASES_COUNT }).map((_, caseIndex) => (
-            <div key={caseIndex} className="border-2 p-4 m-4">
+            <div key={caseIndex} className="border-2 p-2 m-2 bg-yellow-500 rounded-lg">
               {Array.from({ length: ROWS_COUNT }).map((_, rowIndex) => (
                 <div key={rowIndex} className="flex">
                   {Array.from({ length: COLUMNS_COUNT }).map((_, columnIndex) => {
@@ -103,4 +105,4 @@ export const Block = () => {
       </main>
     </>
   );
-}
+};
