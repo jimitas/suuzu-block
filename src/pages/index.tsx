@@ -2,34 +2,45 @@ import Head from "next/head";
 import styles from "@/styles/Home.module.css";
 import { useRef, useState } from "react";
 
-export default function Home() {
-  const blockOuterRef = useRef<HTMLDivElement>(null);
-  const blockInnerRef = useRef<HTMLDivElement>(null);
-  const [rotationAngle, setRotationAngle] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [blockColor, setBlockColor] = useState("pink");
+const CASES_COUNT = 2;
+const ROWS_COUNT = 2;
+const COLUMNS_COUNT = 5;
+const BLOCKS_COUNT = CASES_COUNT * ROWS_COUNT * COLUMNS_COUNT;
 
-  const handleBlockDoubleClick = () => {
-    setIsFlipped(!isFlipped);
-    setBlockColor((prevColor) => (prevColor === "pink" ? "blue" : "pink"));
-    // 現在の角度に180度を加える
-    setRotationAngle((prevAngle) => prevAngle + 180);
-    if (!blockOuterRef.current) return;
-    blockOuterRef.current.style.boxShadow = "0px 4px 4px rgba(0, 0, 0, 0.2)";
+export default function Home() {
+  const blockRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const [rotationAngles, setRotationAngles] = useState<number[]>(new Array(BLOCKS_COUNT).fill(0));
+  const [isFlipped, setIsFlipped] = useState(new Array(BLOCKS_COUNT).fill(false));
+  const [blockColors, setBlockColors] = useState<string[]>(new Array(BLOCKS_COUNT).fill("pink"));
+
+  const handleBlockDoubleClick = (blockIndex: number) => {
+    setIsFlipped((prevFlipped) => {
+      const newFlipped = [...prevFlipped];
+      newFlipped[blockIndex] = !newFlipped[blockIndex];
+      return newFlipped;
+    });
+
+    setBlockColors((prevColors) => {
+      const newColors = [...prevColors];
+      newColors[blockIndex] = prevColors[blockIndex] === "pink" ? "blue" : "pink";
+      return newColors;
+    });
+
+    setRotationAngles((prevAngles) => {
+      const newAngles = [...prevAngles];
+      newAngles[blockIndex] += 180;
+      return newAngles;
+    });
+
+    if (!blockRefs.current[blockIndex]) return;
+    blockRefs.current[blockIndex]!.style.boxShadow = "0px 4px 4px rgba(0, 0, 0, 0.2)";
   };
 
-  const handleTransitionEnd = () => {
-    if (!blockOuterRef.current) return;
-    blockOuterRef.current.style.boxShadow = isFlipped
+  const handleTransitionEnd = (blockIndex: number) => {
+    if (!blockRefs.current[blockIndex]) return;
+    blockRefs.current[blockIndex]!.style.boxShadow = isFlipped[blockIndex]
       ? "-4px 4px 3px rgba(0, 0, 0, 0.5)"
       : "4px 4px 3px rgba(0, 0, 0, 0.5)";
-  };
-
-  // 回転スタイルの作成
-  const rotationStyle = {
-    transform: `rotateY(${rotationAngle}deg)`,
-    transition: "transform 0.2s ease",
-    transformOrigin: "center",
   };
 
   return (
@@ -43,14 +54,35 @@ export default function Home() {
       <main className="flex flex-col items-center justify-center min-h-screen py-2 bg-gray-200">
         <h1 className="text-4xl font-bold text-gray-700">すうず　ぶろっく</h1>
 
-        <div
-          ref={blockOuterRef}
-          className={styles.suuzuBlockOuter}
-          onDoubleClick={handleBlockDoubleClick}
-          onTransitionEnd={handleTransitionEnd}
-          style={{ ...rotationStyle }}
-        >
-          <div ref={blockInnerRef} className={styles.suuzuBlockInner} style={{ backgroundColor: blockColor }}></div>
+        <div className="flex">
+          {Array.from({ length: CASES_COUNT }).map((_, caseIndex) => (
+            <div key={caseIndex} className="border-2 p-4 m-4">
+              {Array.from({ length: ROWS_COUNT }).map((_, rowIndex) => (
+                <div key={rowIndex} className="flex">
+                  {Array.from({ length: COLUMNS_COUNT }).map((_, columnIndex) => {
+                    const blockIndex = caseIndex * (ROWS_COUNT * COLUMNS_COUNT) + rowIndex * COLUMNS_COUNT + columnIndex;
+                    return (
+                      <div
+                        key={blockIndex}
+                        ref={(el) => (blockRefs.current[blockIndex] = el)}
+                        className={styles.suuzuBlockOuter}
+                        onDoubleClick={() => handleBlockDoubleClick(blockIndex)}
+                        onTransitionEnd={() => handleTransitionEnd(blockIndex)}
+                        style={{
+                          transform: `rotateY(${rotationAngles[blockIndex]}deg)`,
+                          transition: "transform 0.2s ease",
+                          boxShadow:"4px 4px 3px rgba(0, 0, 0, 0.5)",
+                          transformOrigin: "center",
+                        }}
+                      >
+                        <div className={styles.suuzuBlockInner} style={{ backgroundColor: blockColors[blockIndex] }}></div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
       </main>
     </>
