@@ -1,105 +1,105 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import * as se from "src/components/se";
-import styles from "@/styles/Home.module.css";
+import styles from "src/components/Block/Block.module.css";
 import { useRef, useState } from "react";
+import { useDragDrop } from "@/hooks/useDragDrop";
 
 interface BlockProps {
-  casesCount: number;
-  rowsCount: number;
-  columunsCount: number;
+  leftBlockCount: number;
+  rightBlockCount: number;
 }
 
+const divColor = ["#ff8082", "#005aff", "#ff8082", "#005aff"];
+
 export const Block = (props: BlockProps) => {
-  const CASES_COUNT = props.casesCount;
-  const ROWS_COUNT = props.rowsCount;
-  const COLUMNS_COUNT = props.columunsCount;
-  const BLOCKS_COUNT = CASES_COUNT * ROWS_COUNT * COLUMNS_COUNT;
+  const el_blocksArea = useRef<HTMLDivElement>(null);
+  const upLeftCount = props.leftBlockCount > 10 ? 10 : 0 || 0;
+  const upRightCount = props.rightBlockCount > 10 ? 10 : 0 || 0;
+  const loLeftCount =
+    props.leftBlockCount > 10 ? props.leftBlockCount - 10 : props.leftBlockCount === 0 ? 0 : props.leftBlockCount || 10;
+  const loRightCount =
+    props.rightBlockCount > 10
+      ? props.rightBlockCount - 10
+      : props.rightBlockCount === 0
+      ? 0
+      : props.rightBlockCount || 10;
+  const [count, setCount] = useState(0);
 
-  const blockRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const [rotationAngles, setRotationAngles] = useState<number[]>(new Array(BLOCKS_COUNT).fill(0));
-  const [isFlipped, setIsFlipped] = useState(new Array(BLOCKS_COUNT).fill(false));
-  const [blockColors, setBlockColors] = useState<string[]>(new Array(BLOCKS_COUNT).fill("pink"));
-  const [lastClickTimestamp, setLastClickTimestamp] = useState<number>(0);
+  const { dragStart, dragOver, dropEnd, touchStart, touchMove, touchEnd } = useDragDrop();
 
-  //ダブルクリックの判定
-  const handleClick = (blockIndex: number) => {
-    const currentTimestamp = Date.now();
-    if (currentTimestamp - lastClickTimestamp <= 500) {
-      handleBlockDoubleClick(blockIndex);
-    } 
-    setLastClickTimestamp(currentTimestamp);
-  };
+  // 数図ブロックの描画
+  useEffect(() => {
+    const ele = el_blocksArea.current;
+    while (ele?.firstChild) {
+      ele.removeChild(ele.firstChild);
+    }
 
-  //ブロックを裏返す
-  const handleBlockDoubleClick = (blockIndex: number) => {
-    se.kururin.play();
+    for (let i = 0; i < 4; i++) {
+      const TBL = document.createElement("table");
+      ele!.appendChild(TBL);
+      for (let j = 0; j < 2; j++) {
+        const tr = document.createElement("tr");
+        TBL.appendChild(tr);
+        for (let k = 0; k < 5; k++) {
+          const td = document.createElement("td");
+          td.className = "droppable-elem";
+          tr.appendChild(td);
+          if (
+            (i === 0 && j * 5 + k < upLeftCount) ||
+            (i === 1 && j * 5 + k < upRightCount) ||
+            (i === 2 && j * 5 + k < loLeftCount) ||
+            (i === 3 && j * 5 + k < loRightCount)
+          ) {
+            let colorIndex = i;
+            let touchStartFlag = false;
+            const div = document.createElement("div");
+            div.className = "draggable-elem";
+            div.setAttribute("draggable", "true");
+            div.style.backgroundColor = divColor[colorIndex];
 
-    setIsFlipped((prevFlipped) => {
-      const newFlipped = [...prevFlipped];
-      newFlipped[blockIndex] = !newFlipped[blockIndex];
-      return newFlipped;
-    });
+            const colorChange = () => {
+              se.pi.play();
+              colorIndex++;
+              div.style.backgroundColor = divColor[colorIndex % 2];
+            };
 
-    setBlockColors((prevColors) => {
-      const newColors = [...prevColors];
-      newColors[blockIndex] = prevColors[blockIndex] === "pink" ? "blue" : "pink";
-      return newColors;
-    });
+            //150ミリ秒以内にタッチして指を離すとき，クリックイベントと同じ挙動とみなす。
+            const touchStartEvent = () => {
+              touchStartFlag === false ? (touchStartFlag = true) : (touchStartFlag = false);
+              setTimeout(() => {
+                touchStartFlag = false;
+              }, 150);
+            };
 
-    setRotationAngles((prevAngles) => {
-      const newAngles = [...prevAngles];
-      newAngles[blockIndex] += 180;
-      return newAngles;
-    });
+            const touchEndEvent = () => {
+              touchStartFlag === true ? colorChange() : null;
+            };
 
-    if (!blockRefs.current[blockIndex]) return;
-    blockRefs.current[blockIndex]!.style.boxShadow = "0px 4px 4px rgba(0, 0, 0, 0.2)";
-  };
-
-  const handleTransitionEnd = (blockIndex: number) => {
-    if (!blockRefs.current[blockIndex]) return;
-    blockRefs.current[blockIndex]!.style.boxShadow = isFlipped[blockIndex]
-      ? "-4px 4px 3px rgba(0, 0, 0, 0.5)"
-      : "4px 4px 3px rgba(0, 0, 0, 0.5)";
-  };
+            div.addEventListener("click", colorChange, false);
+            div.addEventListener("touchstart", touchStartEvent, false);
+            div.addEventListener("touchend", touchEndEvent, false);
+            td.appendChild(div);
+          }
+        }
+      }
+    }
+  }, [count, upLeftCount, upRightCount, loLeftCount, loRightCount]);
 
   return (
     <>
       <main className="flex flex-col items-center justify-center min-h-screen py-2 bg-gray-200">
-        <h1 className="text-4xl font-bold text-gray-700">すうず　ぶろっく</h1>
-
-        <div className="flex bg-red-200 rounded-xl">
-          {Array.from({ length: CASES_COUNT }).map((_, caseIndex) => (
-            <div key={caseIndex} className="border-2 p-2 m-2 bg-yellow-500 rounded-lg">
-              {Array.from({ length: ROWS_COUNT }).map((_, rowIndex) => (
-                <div key={rowIndex} className="flex">
-                  {Array.from({ length: COLUMNS_COUNT }).map((_, columnIndex) => {
-                    const blockIndex =
-                      caseIndex * (ROWS_COUNT * COLUMNS_COUNT) + rowIndex * COLUMNS_COUNT + columnIndex;
-                    return (
-                      // eslint-disable-next-line react/jsx-key
-                        <div key={blockIndex}
-                          ref={(el) => (blockRefs.current[blockIndex] = el)}
-                          className={styles.suuzuBlockOuter}
-                          onClick={() => handleClick(blockIndex)}
-                          onTransitionEnd={() => handleTransitionEnd(blockIndex)}
-                          style={{
-                            transform: `rotateY(${rotationAngles[blockIndex]}deg)`,
-                          }}
-                        >
-                          <div
-                            className={styles.suuzuBlockInner}
-                            style={{ backgroundColor: blockColors[blockIndex] }}
-                          ></div>
-                        </div>
-                    );
-                  })}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
+        <h1 className="text-4xl font-bold text-gray-700 mb-4">すうず　ぶろっく</h1>
+        <div
+          ref={el_blocksArea}
+          className={styles.table}
+          onTouchStart={touchStart}
+          onTouchMove={touchMove}
+          onTouchEnd={touchEnd}
+          onDragStart={dragStart}
+          onDragOver={dragOver}
+          onDrop={dropEnd}
+        ></div>
       </main>
     </>
   );

@@ -4,7 +4,7 @@
 import { Block } from "@/components/Block";
 
 const Home: React.FC = () => {
-  return <Block casesCount={2} rowsCount={2} columunsCount={5} />;
+  return <Block leftBlockCount={10} rightBlockCount={10} />;
 };
 
 export default Home;

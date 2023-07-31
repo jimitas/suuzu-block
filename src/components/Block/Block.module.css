@@ -1,0 +1,54 @@
+.table {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: space-between;
+  width: 525px;
+  height: 300px;
+}
+
+.table table {
+  min-width: 260px;
+  height: 110px;
+  border-radius: 10px;
+  justify-content: center; /* 要素を中央に配置 */
+  align-items: center; /* 要素を中央に配置 */
+  box-shadow: 2px 2px 2px 0 rgba(128, 128, 128, 0.8);
+  background-color: lightgray;
+  border: solid 5px lightgrey;
+}
+
+.table table:nth-child(1) {
+  border: solid 5px lightgreen;
+  background-color: lightgreen;
+}
+
+.table table:nth-child(2) {
+  border: solid 5px lightsalmon;
+  background-color: lightsalmon;
+}
+
+.table td {
+  width: 50px;
+  height: 50px;
+  margin:5px;
+  border: 1px solid gray;
+  background-color: white;
+  border-radius: 10px;
+  border-collapse: collapse;
+}
+
+.table div {
+  width: 36px;
+  height: 36px;
+  margin: auto;
+  border-radius: 50%;
+  box-shadow: 2px 2px 2px 0 rgba(128, 128, 128, 0.8);
+  border: 1px solid;
+  cursor: pointer;
+}
+
+.container {
+  padding: 0 2vw;
+}
