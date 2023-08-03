@@ -1,5 +1,5 @@
 import React from "react";
-
+import Draggable from "react-draggable";
 import * as se from "src/components/se";
 import styles from "@/styles/Home.module.css";
 import { useRef, useState } from "react";
@@ -27,7 +27,7 @@ export const Block = (props: BlockProps) => {
     const currentTimestamp = Date.now();
     if (currentTimestamp - lastClickTimestamp <= 500) {
       handleBlockDoubleClick(blockIndex);
-    } 
+    }
     setLastClickTimestamp(currentTimestamp);
   };
 
@@ -79,7 +79,9 @@ export const Block = (props: BlockProps) => {
                       caseIndex * (ROWS_COUNT * COLUMNS_COUNT) + rowIndex * COLUMNS_COUNT + columnIndex;
                     return (
                       // eslint-disable-next-line react/jsx-key
-                        <div key={blockIndex}
+                      <Draggable defaultPosition={{ x: 0, y: 0 }}>
+                        <div
+                          key={blockIndex}
                           ref={(el) => (blockRefs.current[blockIndex] = el)}
                           className={styles.suuzuBlockOuter}
                           onClick={() => handleClick(blockIndex)}
@@ -93,6 +95,7 @@ export const Block = (props: BlockProps) => {
                             style={{ backgroundColor: blockColors[blockIndex] }}
                           ></div>
                         </div>
+                      </Draggable>
                     );
                   })}
                 </div>
